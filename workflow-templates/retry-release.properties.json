@@ -1,0 +1,8 @@
+{
+  "name": "Quarkiverse Retry Release Workflow",
+  "description": "A workflow that can be triggered manually on an existing tag to retry a failed release.",
+  "iconName": "octicon rocket",
+  "filePatterns": [
+    "ˆpom.xml"
+  ]
+}
