@@ -1,0 +1,8 @@
+{
+  "name": "Quarkiverse Deploy SNAPSHOTS Workflow",
+  "description": "Deploy Quarkiverse SNAPSHOTS to Nexus",
+  "iconName": "octicon rocket",
+  "filePatterns": [
+    "ˆpom.xml"
+  ]
+}
