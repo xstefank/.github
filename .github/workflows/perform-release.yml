@@ -3,9 +3,6 @@ name: Quarkiverse Perform Release
 on:
   # Called in the release workflow
   workflow_call:
-    secrets:
-        GH_TRIGGER_RELEASE_TOKEN:
-            required: true
     inputs:
       version:
         required: true
@@ -87,6 +84,13 @@ jobs:
           path: ${{env.ARTIFACT_PATH}}
           retention-days: 3
 
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        name: Create GitHub App Token
+        with:
+          app-id: ${{ vars.CI_APP_ID }}
+          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+
       - name: Invoke Quarkiverse Release workflow
         run: |
           gh workflow run deploy-artifacts.yml -R quarkiverse/quarkiverse-release \
@@ -95,7 +99,7 @@ jobs:
             -f version=${RELEASE_VERSION} \
             -f name=${ARTIFACT_NAME}
         env:
-          GH_TOKEN: ${{ secrets.GH_TRIGGER_RELEASE_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
           GH_RUN_ID: ${{ github.run_id }}
           ARTIFACT_NAME: ${{ github.event.repository.name }}
