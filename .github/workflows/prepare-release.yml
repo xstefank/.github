@@ -62,7 +62,7 @@ jobs:
 
       - name: Maven release ${{env.CURRENT_VERSION}}
         run: |
-          mvn -B release:prepare -Prelease -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -DscmCommentPrefix="[skip ci] " -Darguments="-Dgpg.skip=true"
+          mvn -B release:prepare -Prelease -Dgpg.skip=true -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -DscmCommentPrefix="[skip ci] " -Darguments="-Dgpg.skip=true"
           mvn -B release:clean
 
       - name: Push changes to ${{github.base_ref}} branch and tag ${{env.CURRENT_VERSION}}
