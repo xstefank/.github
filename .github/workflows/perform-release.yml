@@ -90,6 +90,7 @@ jobs:
         with:
           app-id: ${{ vars.CI_APP_ID }}
           private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          repositories: quarkiverse-release
 
       - name: Invoke Quarkiverse Release workflow
         run: |
