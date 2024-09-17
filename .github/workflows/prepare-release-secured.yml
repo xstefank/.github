@@ -11,6 +11,9 @@ on:
         description: "Next Version"
         value: ${{ jobs.prepare-release.outputs.next-version }}
 
+permissions:
+  contents: write
+
 jobs:
   prepare-release:
     runs-on: ubuntu-latest
