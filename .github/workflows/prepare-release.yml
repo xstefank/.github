@@ -25,7 +25,21 @@ jobs:
       next-version: ${{ steps.out.outputs.next-version }}
 
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        name: Create GitHub App Token
+        with:
+          app-id: ${{ vars.CI_APP_ID }}
+          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure Git author
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
 
       - uses: radcortez/project-metadata-action@main
         name: Retrieve project metadata
@@ -46,11 +60,6 @@ jobs:
           distribution: temurin
           java-version: 21
           cache: 'maven'
-
-      - name: Configure Git author
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
 
       - name: Update latest release version in docs
         run: |
