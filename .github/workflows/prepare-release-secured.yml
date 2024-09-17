@@ -33,6 +33,11 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
 
+      - name: Configure Git author
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
       - uses: radcortez/project-metadata-action@main
         name: Retrieve project metadata
         id: metadata
