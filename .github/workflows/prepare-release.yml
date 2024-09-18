@@ -67,9 +67,17 @@ jobs:
           java-version: 21
           cache: 'maven'
 
+      - name: Detect Maven Wrapper
+        run: |
+          if [ -f mvnw ]; then
+            echo "MAVEN_EXEC=./mvnw" >> $GITHUB_ENV
+          else
+            echo "MAVEN_EXEC=mvn" >> $GITHUB_ENV
+          fi
+
       - name: Update latest release version in docs
         run: |
-          mvn -B -ntp -pl docs -am package -DskipTests -DskipITs -Denforcer.skip -Dformatter.skip -Dimpsort.skip
+          $MAVEN_EXEC -B -ntp -pl docs -am package -DskipTests -DskipITs -Denforcer.skip -Dformatter.skip -Dimpsort.skip
           if ! git diff --quiet docs/modules/ROOT/pages/includes; then
             git add docs/modules/ROOT/pages/includes
             git commit -m "Update the latest release version ${{env.CURRENT_VERSION}} in documentation"
@@ -77,8 +85,8 @@ jobs:
 
       - name: Maven release ${{env.CURRENT_VERSION}}
         run: |
-          mvn -B release:prepare -Prelease -Dgpg.skip=true -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -DscmCommentPrefix="[skip ci] " -Darguments="-Dgpg.skip=true"
-          mvn -B release:clean
+          $MAVEN_EXEC -B release:prepare -Prelease -Dgpg.skip=true -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -DscmCommentPrefix="[skip ci] " -Darguments="-Dgpg.skip=true"
+          $MAVEN_EXEC -B release:clean
 
       - name: Push changes to ${{github.base_ref}} branch and tag ${{env.CURRENT_VERSION}}
         run: |

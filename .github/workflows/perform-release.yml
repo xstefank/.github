@@ -66,8 +66,16 @@ jobs:
           java-version: 21
           cache: 'maven'
 
+      - name: Detect Maven Wrapper
+        run: |
+          if [ -f mvnw ]; then
+            echo "MAVEN_EXEC=./mvnw" >> $GITHUB_ENV
+          else
+            echo "MAVEN_EXEC=mvn" >> $GITHUB_ENV
+          fi
+
       - name: Deploy release ${{env.RELEASE_VERSION}}
-        run: mvn deploy -DperformRelease -DaltDeploymentRepository=local::file://${{ github.workspace }}/repository
+        run: $MAVEN_EXEC deploy -DperformRelease -DaltDeploymentRepository=local::file://${{ github.workspace }}/repository
 
       - name: Tarball the artifacts
         run: tar -czvf ${ARTIFACT_PATH} -C repository .
