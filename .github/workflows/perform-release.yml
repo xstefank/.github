@@ -12,6 +12,11 @@ on:
         description: 'Branch or tag to deploy'
         required: false
         type: string
+      dry_run:
+        description: 'Dry run the release'
+        required: false
+        type: boolean
+        default: false
 
   # Can be triggered manually also
   workflow_dispatch:
@@ -24,6 +29,11 @@ on:
         description: 'Branch or tag to deploy'
         type: string
         required: false
+      dry_run:
+        description: 'Dry run the release'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   attestations: write
@@ -38,6 +48,12 @@ jobs:
   perform-release:
     runs-on: ubuntu-latest
     steps:
+      - name: Set Dry Run Environment Variable
+        run: |
+          echo "DRY_RUN=${DISPATCH_DRY_RUN:-${CALL_DRY_RUN}}" >> $GITHUB_ENV
+        env:
+          CALL_DRY_RUN: ${{ inputs.dry_run }}
+          DISPATCH_DRY_RUN: ${{ github.event.inputs.dry_run}}
       - name: Set Release Version Environment Variable
         run: |
           echo "RELEASE_VERSION=${DISPATCH_VERSION:-${CALL_VERSION}}" >> $GITHUB_ENV
@@ -106,7 +122,8 @@ jobs:
             -f github_repository=${GH_REPO} \
             -f run_id=${GH_RUN_ID} \
             -f version=${RELEASE_VERSION} \
-            -f name=${ARTIFACT_NAME}
+            -f name=${ARTIFACT_NAME} \
+            -f dry_run=${DRY_RUN}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
