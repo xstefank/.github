@@ -126,7 +126,7 @@ jobs:
             -f dry_run=${DRY_RUN}
 
           # Wait for the release workflow to start
-          sleep 3
+          sleep 10
           # Get the URL of the release workflow (MUST match the workflow's run-name)
           TITLE="Deploy ${ARTIFACT_NAME} ${RELEASE_VERSION} to Central"
           SUMMARY_URL=$(gh run list --workflow deploy-artifacts.yml -R quarkiverse/quarkiverse-release --json name,url -q '.[] | select(.name == "$TITLE") | .url' --limit 1)
