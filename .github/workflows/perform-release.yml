@@ -129,7 +129,7 @@ jobs:
           sleep 10
           # Get the URL of the release workflow (MUST match the workflow's run-name)
           TITLE="Deploy ${ARTIFACT_NAME} ${RELEASE_VERSION} to Central"
-          SUMMARY_URL=$(gh run list --workflow deploy-artifacts.yml -R quarkiverse/quarkiverse-release --json name,url -q '.[] | select(.name == "$TITLE") | .url' --limit 1)
+          SUMMARY_URL=$(gh run list --workflow deploy-artifacts.yml -R quarkiverse/quarkiverse-release --json name,url -q ".[] | select(.name == \"$TITLE\") | .url" --limit 1)
           echo "## Deployment status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
           echo "Monitor the artifacts being deployed to central here:" >> $GITHUB_STEP_SUMMARY
