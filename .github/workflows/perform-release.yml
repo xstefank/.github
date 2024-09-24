@@ -134,7 +134,7 @@ jobs:
 
       - name: Report Job Summary
         run: |
-          # Wait for the release workflow to start
+          # Wait for the deploy-artifacts.yml workflow to start
           sleep 3
           # Get the URL of the release workflow (MUST match the workflow's run-name)
           SUMMARY_URL=$(gh run list --workflow deploy-artifacts.yml -R quarkiverse/quarkiverse-release --json name,url -q ".[] | select(.name == \"${WORKFLOW_RELEASE_RUN_NAME}\") | .url" --limit 1)
