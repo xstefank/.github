@@ -161,13 +161,9 @@ jobs:
         env:
           SUMMARY_URL: ${{ steps.out.outputs.release-workflow-url }}
 
-  monitor-central-deployment:
-    runs-on: ubuntu-latest
-    needs: perform-release
-    steps:
       - name: Wait for the release workflow to finish
         run: |
           gh run watch ${RELEASE_WORKFLOW_ID} -R quarkiverse/quarkiverse-release --exit-status
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_WORKFLOW_ID: ${{needs.perform-release.outputs.release-workflow-id}}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_WORKFLOW_ID: ${{ steps.out.outputs.release-workflow-id }}
