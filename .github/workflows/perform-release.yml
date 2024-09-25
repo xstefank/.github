@@ -46,6 +46,12 @@ defaults:
 
 jobs:
   perform-release:
+    environment:
+      name: Release Repository
+      url: ${{ steps.out.outputs.release-workflow-url }}
+    outputs:
+      release-workflow-id: ${{ steps.out.outputs.release-workflow-id }}
+      release-workflow-url: ${{ steps.out.outputs.release-workflow-url }}
     runs-on: ubuntu-latest
     steps:
       - name: Set Dry Run Environment Variable
@@ -125,22 +131,43 @@ jobs:
             -f name=${ARTIFACT_NAME} \
             -f dry_run=${DRY_RUN}
 
-          echo "WORKFLOW_RELEASE_RUN_NAME=Deploy ${ARTIFACT_NAME} ${RELEASE_VERSION} to Central" >> $GITHUB_ENV
+          echo "RELEASE_WORKFLOW_RUN_NAME=Deploy ${ARTIFACT_NAME} ${RELEASE_VERSION} to Central" >> $GITHUB_ENV
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
           GH_RUN_ID: ${{ github.run_id }}
           ARTIFACT_NAME: ${{ github.event.repository.name }}
 
-      - name: Report Job Summary
+      - name: Output release version
+        id: out
         run: |
           # Wait for the deploy-artifacts.yml workflow to start
-          sleep 3
+          sleep 10
           # Get the URL of the release workflow (MUST match the workflow's run-name)
-          SUMMARY_URL=$(gh run list --workflow deploy-artifacts.yml -R quarkiverse/quarkiverse-release --json name,url -q ".[] | select(.name == \"${WORKFLOW_RELEASE_RUN_NAME}\") | .url" --limit 1)
+          RELEASE_WORKFLOW_DATA=$(gh run list --workflow deploy-artifacts.yml -R quarkiverse/quarkiverse-release --json databaseId,name,url -q ".[] | select(.name == \"${RELEASE_WORKFLOW_RUN_NAME}\")" --limit 1)
+          RELEASE_WORKFLOW_ID=$(jq -r '.databaseId' <<< $RELEASE_WORKFLOW_DATA)
+          RELEASE_WORKFLOW_URL=$(jq -r '.url' <<< $RELEASE_WORKFLOW_DATA)
+          echo "release-workflow-id=$RELEASE_WORKFLOW_ID" >> $GITHUB_OUTPUT
+          echo "release-workflow-url=$RELEASE_WORKFLOW_URL" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Report Job Summary
+        run: |
           echo "## Deployment status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
           echo "Monitor the artifacts being deployed to central here:" >> $GITHUB_STEP_SUMMARY
-          echo "- [${WORKFLOW_RELEASE_RUN_NAME}]($SUMMARY_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "- [${RELEASE_WORKFLOW_RUN_NAME}](${SUMMARY_URL})" >> $GITHUB_STEP_SUMMARY
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SUMMARY_URL: ${{ steps.out.outputs.release-workflow-url }}
+
+  monitor-central-deployment:
+    runs-on: ubuntu-latest
+    needs: perform-release
+    steps:
+      - name: Wait for the release workflow to finish
+        run: |
+          gh run watch ${RELEASE_WORKFLOW_ID} -R quarkiverse/quarkiverse-release --exit-status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_WORKFLOW_ID: ${{needs.perform-release.outputs.release-workflow-id}}
