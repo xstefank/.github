@@ -128,7 +128,7 @@ jobs:
             -f name=${ARTIFACT_NAME} \
             -f dry_run=${DRY_RUN}
 
-          echo "WORKFLOW_RELEASE_RUN_NAME=Deploy ${ARTIFACT_NAME} ${RELEASE_VERSION} to Central" >> $GITHUB_ENV
+          echo "RELEASE_WORKFLOW_RUN_NAME=Deploy ${ARTIFACT_NAME} ${RELEASE_VERSION} to Central" >> $GITHUB_ENV
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
@@ -139,22 +139,23 @@ jobs:
         id: out
         run: |
           # Wait for the deploy-artifacts.yml workflow to start
-          sleep 3
+          sleep 10
           # Get the URL of the release workflow (MUST match the workflow's run-name)
-          RELEASE_WORKFLOW_DATA=$(gh run list --workflow deploy-artifacts.yml -R quarkiverse/quarkiverse-release --json databaseId,name,url -q ".[] | select(.name == \"${WORKFLOW_RELEASE_RUN_NAME}\")" --limit 1)
+          RELEASE_WORKFLOW_DATA=$(gh run list --workflow deploy-artifacts.yml -R quarkiverse/quarkiverse-release --json databaseId,name,url -q ".[] | select(.name == \"${RELEASE_WORKFLOW_RUN_NAME}\")" --limit 1)
           RELEASE_WORKFLOW_ID=$(jq -r '.databaseId' <<< $WORKFLOW_DATA)
           RELEASE_WORKFLOW_URL=$(jq -r '.url' <<< $WORKFLOW_DATA)
           echo "release-workflow-id=$RELEASE_WORKFLOW_ID" >> $GITHUB_OUTPUT
           echo "release-workflow-url=$RELEASE_WORKFLOW_URL" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Report Job Summary
         run: |
           echo "## Deployment status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
           echo "Monitor the artifacts being deployed to central here:" >> $GITHUB_STEP_SUMMARY
-          echo "- [${WORKFLOW_RELEASE_RUN_NAME}](${SUMMARY_URL})" >> $GITHUB_STEP_SUMMARY
+          echo "- [${RELEASE_WORKFLOW_RUN_NAME}](${SUMMARY_URL})" >> $GITHUB_STEP_SUMMARY
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           SUMMARY_URL: ${{ steps.out.outputs.release-workflow-url }}
 
   monitor-central-deployment:
