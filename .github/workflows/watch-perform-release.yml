@@ -46,6 +46,9 @@ defaults:
 
 jobs:
   perform-release:
+    environment:
+      name: maven-central
+      url: ${{ steps.out.outputs.release-workflow-url }}
     outputs:
       release-workflow-id: ${{ steps.out.outputs.release-workflow-id }}
       release-workflow-url: ${{ steps.out.outputs.release-workflow-url }}
