@@ -36,7 +36,6 @@ on:
         default: false
 
 permissions:
-  actions: read
   attestations: write
   id-token: write
   contents: read
