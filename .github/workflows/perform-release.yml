@@ -16,7 +16,7 @@ on:
         description: 'Dry run the release'
         required: false
         type: boolean
-        default: false
+        default: ${{ vars.CI_DRY_RUN_RELEASE }}
 
   # Can be triggered manually also
   workflow_dispatch:
