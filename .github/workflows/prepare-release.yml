@@ -98,3 +98,8 @@ jobs:
         run: |
           echo "release-version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
           echo "next-version=${NEXT_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        run: gh release create ${CURRENT_VERSION} --generate-notes
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
