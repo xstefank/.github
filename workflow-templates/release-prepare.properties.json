@@ -1,0 +1,8 @@
+{
+  "name": "Quarkiverse Prepare Release Workflow",
+  "description": "A workflow that calls mvn release:prepare.",
+  "iconName": "octicon rocket",
+  "filePatterns": [
+    "ˆpom.xml"
+  ]
+}

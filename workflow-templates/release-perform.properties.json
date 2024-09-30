@@ -1,0 +1,8 @@
+{
+  "name": "Quarkiverse Perform Release Workflow",
+  "description": "A workflow triggered when a tag is created and can be triggered manually on an existing tag to retry a failed release.",
+  "iconName": "octicon rocket",
+  "filePatterns": [
+    "ˆpom.xml"
+  ]
+}
