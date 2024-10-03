@@ -167,3 +167,11 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           RELEASE_WORKFLOW_ID: ${{ steps.out.outputs.release-workflow-id }}
+
+      - name: Display release logs if failed
+        if: failure()
+        run: |
+          gh run view ${RELEASE_WORKFLOW_ID} -R quarkiverse/quarkiverse-release --log-failed
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_WORKFLOW_ID: ${{ steps.out.outputs.release-workflow-id }}
