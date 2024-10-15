@@ -25,10 +25,10 @@ jobs:
   deploy_to_quay:
     environment:
       name: Quay.io
-      url: ${{ steps.out.outputs.release-workflow-url }}
+      url: ${{ steps.out.outputs.deployment-workflow-url }}
     outputs:
-      release-workflow-id: ${{ steps.out.outputs.release-workflow-id }}
-      release-workflow-url: ${{ steps.out.outputs.release-workflow-url }}
+      deployment-workflow-id: ${{ steps.out.outputs.deployment-workflow-id }}
+      deployment-workflow-url: ${{ steps.out.outputs.deployment-workflow-url }}
 
     runs-on: ubuntu-latest
     steps:
@@ -62,7 +62,6 @@ jobs:
             -f github_repository=${GH_REPO} \
             -f run_id=${GH_RUN_ID}
           
-          echo "WORKFLOW_RUN_NAME=Deploy ${PAYLOAD_IMAGE_NAME} ${PAYLOAD_IMAGE_TAG} to Quay.io" >> $GITHUB_ENV
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
@@ -75,25 +74,26 @@ jobs:
           # Wait for the deploy-quay.yml workflow to start
           sleep 10
           # Get the URL of the release workflow (MUST match the workflow's run-name)
-          RELEASE_WORKFLOW_DATA=$(gh run list --workflow deploy-quay.yml -R quarkiverse/quarkiverse-release --json databaseId,name,url -q ".[] | select(.name == \"${RELEASE_WORKFLOW_RUN_NAME}\")" --limit 1)
-          RELEASE_WORKFLOW_ID=$(jq -r '.databaseId' <<< $RELEASE_WORKFLOW_DATA)
-          RELEASE_WORKFLOW_URL=$(jq -r '.url' <<< $RELEASE_WORKFLOW_DATA)
-          echo "release-workflow-id=$RELEASE_WORKFLOW_ID" >> $GITHUB_OUTPUT
-          echo "release-workflow-url=$RELEASE_WORKFLOW_URL" >> $GITHUB_OUTPUT
+          DEPLOYMENT_WORKFLOW_DATA=$(gh run list --workflow deploy-quay.yml -R quarkiverse/quarkiverse-release --json databaseId,name,url -q ".[] | select(.name == \"${DEPLOYMENT_WORKFLOW_RUN_NAME}\")" --limit 1)
+          DEPLOYMENT_WORKFLOW_ID=$(jq -r '.databaseId' <<< $DEPLOYMENT_WORKFLOW_DATA)
+          DEPLOYMENT_WORKFLOW_URL=$(jq -r '.url' <<< $DEPLOYMENT_WORKFLOW_DATA)
+          echo "deployment-workflow-id=$DEPLOYMENT_WORKFLOW_ID" >> $GITHUB_OUTPUT
+          echo "deployment-workflow-url=$DEPLOYMENT_WORKFLOW_URL" >> $GITHUB_OUTPUT
         env:
+          DEPLOYMENT_WORKFLOW_RUN_NAME: Deploy ${PAYLOAD_IMAGE_NAME} ${PAYLOAD_IMAGE_TAG} to Quay.io
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Wait for the deployment workflow to finish
         run: |
-          gh run watch ${RELEASE_WORKFLOW_ID} -R quarkiverse/quarkiverse-release --exit-status
+          gh run watch ${DEPLOYMENT_WORKFLOW_ID} -R quarkiverse/quarkiverse-release --exit-status
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          RELEASE_WORKFLOW_ID: ${{ steps.out.outputs.release-workflow-id }}
+          DEPLOYMENT_WORKFLOW_ID: ${{ steps.out.outputs.deployment-workflow-id }}
 
       - name: Display logs if failed
         if: failure()
         run: |
-          gh run view ${RELEASE_WORKFLOW_ID} -R quarkiverse/quarkiverse-release --log-failed
+          gh run view ${DEPLOYMENT_WORKFLOW_ID} -R quarkiverse/quarkiverse-release --log-failed
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          RELEASE_WORKFLOW_ID: ${{ steps.out.outputs.release-workflow-id }}
+          DEPLOYMENT_WORKFLOW_ID: ${{ steps.out.outputs.deployment-workflow-id }}
