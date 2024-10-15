@@ -25,21 +25,19 @@ jobs:
   deploy_to_quay:
     runs-on: ubuntu-latest
     steps:
-      - name: Save the Docker Image
-        run: docker save "${PAYLOAD_IMAGE_NAME}:${PAYLOAD_IMAGE_TAG}" -o artifact.tar.gz
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact
+          repository: ${{ env.PAYLOAD_REPOSITORY }}
+          run-id: ${{ github.run_id}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate artifact attestation
         id: attest_build_provenance
         uses: actions/attest-build-provenance@v1
         with:
           subject-path: artifact.tar.gz
-
-      - name: Upload the Docker Image
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifact
-          path: artifact.tar.gz
-          retention-days: 1
 
       - uses: actions/create-github-app-token@v1
         id: app-token
