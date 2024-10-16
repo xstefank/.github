@@ -14,6 +14,9 @@ on:
 permissions:
   contents: write
 
+env:
+  GITHUB_REPOSITORY: ${{ github.repository }}
+
 jobs:
   prepare-release:
     runs-on: ubuntu-latest
@@ -84,10 +87,22 @@ jobs:
             git commit -m "Update the latest release version ${{env.CURRENT_VERSION}} in documentation"
           fi
 
+      - name: Bump .md files to ${{env.CURRENT_VERSION}}
+        run: |
+          find -name '*.md' -exec sed -i 's/${NEXT_VERSION}/${CURRENT_VERSION}/g' {} +
+          find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${GITHUB_REPOSITORY}/main|raw.githubusercontent.com/${GITHUB_REPOSITORY}/${CURRENT_VERSION}|g' {} +
+          git commit -a -m "Bump .md files to ${CURRENT_VERSION}"
+
       - name: Maven release ${{env.CURRENT_VERSION}}
         run: |
           $MAVEN_EXEC -B release:prepare -Prelease -Dgpg.skip=true -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments="-Dgpg.skip=true"
           $MAVEN_EXEC -B release:clean
+
+      - name: Bump .md files to ${{env.NEXT_VERSION}}
+        run: |
+          find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${GITHUB_REPOSITORY}/${CURRENT_VERSION}|raw.githubusercontent.com/${GITHUB_REPOSITORY}/main|g' {} +
+          find -name '*.md' -exec sed -i 's/${CURRENT_VERSION}/${NEXT_VERSION}/g' {} +
+          git commit -a -m "Bump .md files to ${NEXT_VERSION}"
 
       - name: Push changes to ${{github.base_ref}} branch and tag ${{env.CURRENT_VERSION}}
         run: |
