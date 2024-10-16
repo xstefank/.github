@@ -14,9 +14,6 @@ on:
 permissions:
   contents: write
 
-env:
-  GITHUB_REPOSITORY: ${{ github.repository }}
-
 jobs:
   prepare-release:
     runs-on: ubuntu-latest
@@ -89,10 +86,10 @@ jobs:
 
       - name: Bump .md files to ${{env.CURRENT_VERSION}}
         run: |
-          find -name '*.md' -exec sed -i 's/${NEXT_VERSION}/${CURRENT_VERSION}/g' {} +
-          find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${GITHUB_REPOSITORY}/main|raw.githubusercontent.com/${GITHUB_REPOSITORY}/${CURRENT_VERSION}|g' {} +
+          find -name '*.md' -exec sed -i 's/${{env.NEXT_VERSION}}/${{env.CURRENT_VERSION}}/g' {} +
+          find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${{ github.repository }}/main|raw.githubusercontent.com/${{ github.repository }}/${{env.CURRENT_VERSION}}|g' {} +
           if [[ `git status --porcelain` ]]; then
-            git commit -a -m "Bump .md files to ${CURRENT_VERSION}"
+            git commit -a -m "Bump .md files to ${{env.CURRENT_VERSION}}"
           fi
 
       - name: Maven release ${{env.CURRENT_VERSION}}
@@ -102,11 +99,12 @@ jobs:
 
       - name: Bump .md files to ${{env.NEXT_VERSION}}
         run: |
-          find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${GITHUB_REPOSITORY}/${CURRENT_VERSION}|raw.githubusercontent.com/${GITHUB_REPOSITORY}/main|g' {} +
-          find -name '*.md' -exec sed -i 's/${CURRENT_VERSION}/${NEXT_VERSION}/g' {} +
+          find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${{ github.repository }}/${{env.CURRENT_VERSION}}|raw.githubusercontent.com/${{ github.repository }}/main|g' {} +
+          find -name '*.md' -exec sed -i 's/${{env.CURRENT_VERSION}}/${{env.NEXT_VERSION}}/g' {} +
           if [[ `git status --porcelain` ]]; then
-            git commit -a -m "Bump .md files to ${NEXT_VERSION}"
+            git commit -a -m "Bump .md files to ${{env.NEXT_VERSION}}"
           fi
+
       - name: Push changes to ${{github.base_ref}} branch and tag ${{env.CURRENT_VERSION}}
         run: |
           git push
