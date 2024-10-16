@@ -80,7 +80,7 @@ jobs:
           echo "deployment-workflow-id=$DEPLOYMENT_WORKFLOW_ID" >> $GITHUB_OUTPUT
           echo "deployment-workflow-url=$DEPLOYMENT_WORKFLOW_URL" >> $GITHUB_OUTPUT
         env:
-          DEPLOYMENT_WORKFLOW_RUN_NAME: Deploy ${PAYLOAD_IMAGE_NAME} ${PAYLOAD_IMAGE_TAG} to Quay.io
+          DEPLOYMENT_WORKFLOW_RUN_NAME: Deploy ${{env.PAYLOAD_IMAGE_NAME}} ${{env.PAYLOAD_IMAGE_TAG}} to Quay.io
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Wait for the deployment workflow to finish
