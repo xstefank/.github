@@ -94,6 +94,10 @@ jobs:
 
       - name: Maven release ${{env.CURRENT_VERSION}}
         uses: coactions/setup-xvfb@v1
+        env:
+          MAVEN_EXEC: ${{ env.MAVEN_EXEC }}
+          CURRENT_VERSION: ${{ env.CURRENT_VERSION }}
+          NEXT_VERSION: ${{ env.NEXT_VERSION }}
         with:
           run: |
             $MAVEN_EXEC -B release:prepare -Prelease -Dgpg.skip=true -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments="-Dgpg.skip=true"
