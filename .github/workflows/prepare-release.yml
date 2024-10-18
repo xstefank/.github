@@ -7,6 +7,11 @@ on:
         required: false
         description: Maven Executable
         type: string
+      java_version:
+        required: false
+        description: Java Version
+        type: number
+        default: 21
     # Map the workflow outputs to job outputs
     outputs:
       release-version:
@@ -65,16 +70,14 @@ jobs:
           echo "CURRENT_VERSION=${{steps.metadata.outputs.current-version}}" >> $GITHUB_ENV
           echo "NEXT_VERSION=${{steps.metadata.outputs.next-version}}" >> $GITHUB_ENV
 
-      - name: Set up JDK 21
+      - name: Set up JDK ${{inputs.java_version}}
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: ${{inputs.java_version}}
           cache: 'maven'
 
       - name: Detect Maven Executable
-        env:
-          MAVEN_EXEC: ${{ inputs.maven_executable }}
         run: |
           if [[ -z "${MAVEN_EXEC}" ]]; then
             if [ -f mvnw ]; then
@@ -85,6 +88,9 @@ jobs:
           else
             echo "MAVEN_EXEC=${MAVEN_EXEC}" >> $GITHUB_ENV
           fi
+        env:
+          MAVEN_EXEC: ${{ inputs.maven_executable }}
+
       - name: Update latest release version in docs
         if: ${{ hashFiles('docs/pom.xml') != '' }}
         run: |

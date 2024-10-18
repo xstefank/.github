@@ -17,6 +17,11 @@ on:
         required: false
         type: boolean
         default: false
+      java_version:
+        required: false
+        description: Java Version
+        type: number
+        default: 21
 
   # Can be triggered manually also
   workflow_dispatch:
@@ -81,11 +86,11 @@ jobs:
         with:
           ref: ${{env.REF}} # The tag created by the release:prepare goal
 
-      - name: Set up JDK 21
+      - name: Set up JDK ${{ inputs.java_version }}
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: ${{ inputs.java_version }}
           cache: 'maven'
 
       - name: Detect Maven Wrapper
