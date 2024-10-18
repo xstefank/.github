@@ -2,6 +2,11 @@ name: Quarkiverse Prepare Release
 
 on:
   workflow_call:
+    inputs:
+      maven_executable:
+        required: false
+        description: Maven Executable
+        type: string
     # Map the workflow outputs to job outputs
     outputs:
       release-version:
@@ -67,14 +72,19 @@ jobs:
           java-version: 21
           cache: 'maven'
 
-      - name: Detect Maven Wrapper
+      - name: Detect Maven Executable
+        env:
+          MAVEN_EXEC: ${{ inputs.maven_executable }}
         run: |
-          if [ -f mvnw ]; then
-            echo "MAVEN_EXEC=./mvnw" >> $GITHUB_ENV
+          if [[ -z "${MAVEN_EXEC}" ]]; then
+            if [ -f mvnw ]; then
+              echo "MAVEN_EXEC=./mvnw" >> $GITHUB_ENV
+            else
+              echo "MAVEN_EXEC=mvn" >> $GITHUB_ENV
+            fi
           else
-            echo "MAVEN_EXEC=mvn" >> $GITHUB_ENV
+            echo "MAVEN_EXEC=${MAVEN_EXEC}" >> $GITHUB_ENV
           fi
-
       - name: Update latest release version in docs
         if: ${{ hashFiles('docs/pom.xml') != '' }}
         run: |
