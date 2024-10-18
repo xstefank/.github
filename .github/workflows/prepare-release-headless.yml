@@ -94,9 +94,10 @@ jobs:
 
       - name: Maven release ${{env.CURRENT_VERSION}}
         uses: coactions/setup-xvfb@v1
-        run: |
-          $MAVEN_EXEC -B release:prepare -Prelease -Dgpg.skip=true -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments="-Dgpg.skip=true"
-          $MAVEN_EXEC -B release:clean
+        with:
+          run: |
+            $MAVEN_EXEC -B release:prepare -Prelease -Dgpg.skip=true -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments="-Dgpg.skip=true"
+            $MAVEN_EXEC -B release:clean
 
       - name: Bump .md files to ${{env.NEXT_VERSION}}
         run: |
