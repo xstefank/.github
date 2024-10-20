@@ -95,9 +95,8 @@ jobs:
         if: ${{ hashFiles('docs/pom.xml') != '' }}
         run: |
           $MAVEN_EXEC -B -ntp -pl docs -am package -DskipTests -DskipITs -Denforcer.skip -Dformatter.skip -Dimpsort.skip
-          if ! git diff --quiet docs/modules/ROOT/pages/includes; then
-            git add docs/modules/ROOT/pages/includes
-            git commit -m "Update the latest release version ${{env.CURRENT_VERSION}} in documentation"
+          if [[ `git status --porcelain` ]]; then
+            git commit -a -m "Update the latest release version ${{env.CURRENT_VERSION}} in documentation"
           fi
 
       - name: Bump .md files to ${{env.CURRENT_VERSION}}
