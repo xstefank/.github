@@ -12,6 +12,11 @@ on:
         description: Java Version
         type: number
         default: 21
+      create_release:
+        required: false
+        description: Create Release ?
+        type: boolean
+        default: true
     # Map the workflow outputs to job outputs
     outputs:
       release-version:
@@ -132,6 +137,9 @@ jobs:
           echo "next-version=${NEXT_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
-        run: gh release create ${CURRENT_VERSION} --generate-notes
+        if: ${{ inputs.create_release }}
+        run: gh release create ${CURRENT_VERSION} --generate-notes --latest=${LATEST_RELEASE} --prerelease=${PRE_RELEASE}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PRE_RELEASE: ${{ steps.metadata.outputs.pre-release == 'true' }}
+          LATEST_RELEASE: ${{ !steps.metadata.outputs.latest || (steps.metadata.outputs.latest == 'true') }}
