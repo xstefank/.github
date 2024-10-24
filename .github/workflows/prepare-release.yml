@@ -94,7 +94,7 @@ jobs:
       - name: Update latest release version in docs
         if: ${{ hashFiles('docs/pom.xml') != '' }}
         run: |
-          $MAVEN_EXEC -B -ntp -pl docs -am package -DskipTests -DskipITs -Denforcer.skip -Dformatter.skip -Dimpsort.skip -Prelease
+          $MAVEN_EXEC -B -ntp -pl docs -am package -DskipTests -DskipITs -Denforcer.skip -Dformatter.skip -Dimpsort.skip
           if [[ `git status --porcelain` ]]; then
             git commit -a -m "Update the latest release version ${{env.CURRENT_VERSION}} in documentation"
           fi
