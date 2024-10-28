@@ -1,8 +1,0 @@
-{
-  "name": "Quarkiverse Release Workflow",
-  "description": "This is the release workflow for Quarkus Extensions in the Quarkiverse Organization.",
-  "iconName": "octicon rocket",
-  "filePatterns": [
-    "ˆpom.xml"
-  ]
-}
