@@ -21,3 +21,10 @@ jobs:
         run: |
           echo '::error::Cannot release a SNAPSHOT version.'
           exit 1
+      - name: Check if there are any pre-release error messages
+        if: ${{ vars.PRE_RELEASE_ERROR != ''}}
+        run: |
+          echo '::error::${ERROR_MSG}'
+          exit 1
+        env:
+          ERROR_MSG: ${{ vars.PRE_RELEASE_ERROR }}
