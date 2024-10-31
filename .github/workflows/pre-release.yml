@@ -24,7 +24,5 @@ jobs:
       - name: Check if there are any pre-release error messages
         if: ${{ vars.PRE_RELEASE_ERROR != ''}}
         run: |
-          echo '::error::${ERROR_MSG}'
+          echo '::error::${{ vars.PRE_RELEASE_ERROR }}'
           exit 1
-        env:
-          ERROR_MSG: ${{ vars.PRE_RELEASE_ERROR }}
