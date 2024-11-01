@@ -113,8 +113,8 @@ jobs:
           fi
 
       - name: Invoke Pre-Prepare Release Hook (if exists)
-        if: ${{ hashFiles('.github/pre-prepare-release.sh') != '' }}
-        run: ./.github/pre-prepare-release.sh
+        if: ${{ hashFiles('.github/workflows/hooks/pre-prepare-release.sh') != '' }}
+        run: ./.github/workflows/hooks/pre-prepare-release.sh
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           CURRENT_VERSION: ${{env.CURRENT_VERSION}}
@@ -126,8 +126,8 @@ jobs:
           $MAVEN_EXEC -B release:clean
 
       - name: Invoke Post-Prepare Release Hook (if exists)
-        if: ${{ hashFiles('.github/post-prepare-release.sh') != '' }}
-        run: ./.github/post-prepare-release.sh
+        if: ${{ hashFiles('.github/workflows/hooks/post-prepare-release.sh') != '' }}
+        run: ./.github/workflows/hooks/post-prepare-release.sh
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           CURRENT_VERSION: ${{env.CURRENT_VERSION}}
