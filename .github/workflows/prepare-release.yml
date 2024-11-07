@@ -105,6 +105,7 @@ jobs:
           fi
 
       - name: Bump .md files to ${{env.CURRENT_VERSION}}
+        if: false
         run: |
           find -name '*.md' -exec sed -i 's/${{env.NEXT_VERSION}}/${{env.CURRENT_VERSION}}/g' {} +
           find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${{ github.repository }}/main|raw.githubusercontent.com/${{ github.repository }}/${{env.CURRENT_VERSION}}|g' {} +
@@ -134,6 +135,7 @@ jobs:
           NEXT_VERSION: ${{env.NEXT_VERSION}}
 
       - name: Bump .md files to ${{env.NEXT_VERSION}}
+        if: false
         run: |
           find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${{ github.repository }}/${{env.CURRENT_VERSION}}|raw.githubusercontent.com/${{ github.repository }}/main|g' {} +
           find -name '*.md' -exec sed -i 's/${{env.CURRENT_VERSION}}/${{env.NEXT_VERSION}}/g' {} +
