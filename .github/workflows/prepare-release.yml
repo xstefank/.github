@@ -33,7 +33,6 @@ jobs:
   prepare-release:
     runs-on: ubuntu-latest
     name: Prepare Release
-    if: ${{github.event.pull_request.merged == true}}
     # Map the job outputs to step outputs
     outputs:
       release-version: ${{ steps.out.outputs.release-version }}
