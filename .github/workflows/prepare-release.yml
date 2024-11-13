@@ -39,9 +39,6 @@ jobs:
       next-version: ${{ steps.out.outputs.next-version }}
 
     steps:
-      - uses: sdkman/sdkman-action@v1
-        name: Install SDKMan
-        id: sdkman
       - uses: actions/create-github-app-token@v1
         id: app-token
         name: Create GitHub App Token
