@@ -39,11 +39,6 @@ jobs:
       next-version: ${{ steps.out.outputs.next-version }}
 
     steps:
-      - name: Setup SDKMan!
-        uses: sfesenko/setup-sdkman@v1
-      - run: |
-          source ~/.sdkman/bin/sdkman-init.sh
-          sdk version        
       - uses: actions/create-github-app-token@v1
         id: app-token
         name: Create GitHub App Token
