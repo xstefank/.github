@@ -98,23 +98,6 @@ jobs:
         env:
           MAVEN_EXEC: ${{ inputs.maven_executable }}
 
-      - name: Update latest release version in docs
-        if: ${{ hashFiles('docs/pom.xml') != '' }}
-        run: |
-          $MAVEN_EXEC -B -ntp -pl docs -am package -DskipTests -DskipITs -Denforcer.skip -Dformatter.skip -Dimpsort.skip
-          if [[ `git status --porcelain` ]]; then
-            git commit -a -m "Update the latest release version ${{env.CURRENT_VERSION}} in documentation"
-          fi
-
-      - name: Bump .md files to ${{env.CURRENT_VERSION}}
-        if: false
-        run: |
-          find -name '*.md' -exec sed -i 's/${{env.NEXT_VERSION}}/${{env.CURRENT_VERSION}}/g' {} +
-          find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${{ github.repository }}/main|raw.githubusercontent.com/${{ github.repository }}/${{env.CURRENT_VERSION}}|g' {} +
-          if [[ `git status --porcelain` ]]; then
-            git commit -a -m "Bump .md files to ${{env.CURRENT_VERSION}}"
-          fi
-
       - name: Invoke Pre-Prepare Release Hook (if exists)
         if: ${{ hashFiles('.github/workflows/hooks/pre-prepare-release.sh') != '' }}
         run: ./.github/workflows/hooks/pre-prepare-release.sh
@@ -122,6 +105,14 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           CURRENT_VERSION: ${{env.CURRENT_VERSION}}
           NEXT_VERSION: ${{env.NEXT_VERSION}}
+
+      - name: Update latest release version in docs
+        if: ${{ hashFiles('docs/pom.xml') != '' }}
+        run: |
+          $MAVEN_EXEC -B -ntp -pl docs -am package -DskipTests -DskipITs -Denforcer.skip -Dformatter.skip -Dimpsort.skip
+          if [[ `git status --porcelain` ]]; then
+            git commit -a -m "Update the latest release version ${{env.CURRENT_VERSION}} in documentation"
+          fi
 
       - name: Maven release ${{env.CURRENT_VERSION}}
         run: |
@@ -135,15 +126,6 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           CURRENT_VERSION: ${{env.CURRENT_VERSION}}
           NEXT_VERSION: ${{env.NEXT_VERSION}}
-
-      - name: Bump .md files to ${{env.NEXT_VERSION}}
-        if: false
-        run: |
-          find -name '*.md' -exec sed -i 's|raw.githubusercontent.com/${{ github.repository }}/${{env.CURRENT_VERSION}}|raw.githubusercontent.com/${{ github.repository }}/main|g' {} +
-          find -name '*.md' -exec sed -i 's/${{env.CURRENT_VERSION}}/${{env.NEXT_VERSION}}/g' {} +
-          if [[ `git status --porcelain` ]]; then
-            git commit -a -m "Bump .md files to ${{env.NEXT_VERSION}}"
-          fi
 
       - name: Push changes to ${{github.base_ref}} branch and tag ${{env.CURRENT_VERSION}}
         run: |
