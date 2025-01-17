@@ -1,4 +1,4 @@
-name: Quarkiverse Prepare Release
+name: Xstefank Quarkiverse Prepare Release
 
 on:
   workflow_call:
@@ -39,27 +39,27 @@ jobs:
       next-version: ${{ steps.out.outputs.next-version }}
 
     steps:
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        name: Create GitHub App Token
-        with:
-          app-id: ${{ vars.CI_APP_ID }}
-          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+#      - uses: actions/create-github-app-token@v1
+#        id: app-token
+#        name: Create GitHub App Token
+#        with:
+#          app-id: ${{ vars.CI_APP_ID }}
+#          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
 
       - uses: actions/checkout@v4
-        with:
-          token: ${{ steps.app-token.outputs.token }}
+#        with:
+#          token: ${{ steps.app-token.outputs.token }}
 
-      - name: Get GitHub App User ID
-        id: get-user-id
-        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+#      - name: Get GitHub App User ID
+#        id: get-user-id
+#        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+#        env:
+#          GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Configure Git author
         run: |
-          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
-          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com>'
+          git config --global user.name 'xstefank'
+          git config --global user.email 'xstefank122@gmail.com'
 
       - uses: radcortez/project-metadata-action@main
         name: Retrieve project metadata
@@ -114,34 +114,34 @@ jobs:
             git commit -a -m "Update the latest release version ${{env.CURRENT_VERSION}} in documentation"
           fi
 
-      - name: Maven release ${{env.CURRENT_VERSION}}
-        run: |
-          $MAVEN_EXEC -B release:prepare -Prelease -Dgpg.skip=true -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments="-Dgpg.skip=true -DprepareRelease=true" -DprepareRelease=true
-          $MAVEN_EXEC -B release:clean
-
-      - name: Invoke Post-Prepare Release Hook (if exists)
-        if: ${{ hashFiles('.github/workflows/hooks/post-prepare-release.sh') != '' }}
-        run: ./.github/workflows/hooks/post-prepare-release.sh
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          CURRENT_VERSION: ${{env.CURRENT_VERSION}}
-          NEXT_VERSION: ${{env.NEXT_VERSION}}
-
-      - name: Push changes to ${{github.base_ref}} branch and tag ${{env.CURRENT_VERSION}}
-        run: |
-          git push
-          git push origin ${CURRENT_VERSION}
-
-      - name: Output release version
-        id: out
-        run: |
-          echo "release-version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
-          echo "next-version=${NEXT_VERSION}" >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        if: ${{ inputs.create_release }}
-        run: gh release create ${CURRENT_VERSION} --generate-notes --latest=${LATEST_RELEASE} --prerelease=${PRE_RELEASE}
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          PRE_RELEASE: ${{ steps.metadata.outputs.pre-release == 'true' }}
-          LATEST_RELEASE: ${{ !steps.metadata.outputs.latest || (steps.metadata.outputs.latest == 'true') }}
+#      - name: Maven release ${{env.CURRENT_VERSION}}
+#        run: |
+#          $MAVEN_EXEC -B release:prepare -Prelease -Dgpg.skip=true -DreleaseVersion=${CURRENT_VERSION} -DdevelopmentVersion=${NEXT_VERSION} -Darguments="-Dgpg.skip=true -DprepareRelease=true" -DprepareRelease=true
+#          $MAVEN_EXEC -B release:clean
+#
+#      - name: Invoke Post-Prepare Release Hook (if exists)
+#        if: ${{ hashFiles('.github/workflows/hooks/post-prepare-release.sh') != '' }}
+#        run: ./.github/workflows/hooks/post-prepare-release.sh
+#        env:
+#          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+#          CURRENT_VERSION: ${{env.CURRENT_VERSION}}
+#          NEXT_VERSION: ${{env.NEXT_VERSION}}
+#
+#      - name: Push changes to ${{github.base_ref}} branch and tag ${{env.CURRENT_VERSION}}
+#        run: |
+#          git push
+#          git push origin ${CURRENT_VERSION}
+#
+#      - name: Output release version
+#        id: out
+#        run: |
+#          echo "release-version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+#          echo "next-version=${NEXT_VERSION}" >> $GITHUB_OUTPUT
+#
+#      - name: Create GitHub Release
+#        if: ${{ inputs.create_release }}
+#        run: gh release create ${CURRENT_VERSION} --generate-notes --latest=${LATEST_RELEASE} --prerelease=${PRE_RELEASE}
+#        env:
+#          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+#          PRE_RELEASE: ${{ steps.metadata.outputs.pre-release == 'true' }}
+#          LATEST_RELEASE: ${{ !steps.metadata.outputs.latest || (steps.metadata.outputs.latest == 'true') }}
